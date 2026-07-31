@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>University Task Tracker</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-5: 1.25rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-10: 2.5rem;
+      --space-12: 3rem;
+      --space-16: 4rem;
+
+      --color-bg: #f7f6f2;
+      --color-surface: #f9f8f5;
+      --color-surface-2: #fbfbf9;
+      --color-surface-offset: #f3f0ec;
+      --color-divider: #dcd9d5;
+      --color-border: #d4d1ca;
+      --color-text: #28251d;
+      --color-text-muted: #7a7974;
+      --color-text-faint: #a8a7a2;
+      --color-text-inverse: #f9f8f4;
+      --color-primary: #01696f;
+      --color-primary-hover: #0c4e54;
+      --color-primary-highlight: #cedcd8;
+      --color-success: #437a22;
+      --color-warning: #964219;
+      --color-notification: #a13544;
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px rgba(40, 37, 29, 0.06);
+      --shadow-md: 0 8px 24px rgba(40, 37, 29, 0.08);
+      --transition-interactive: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      --font-body: 'Satoshi', Inter, sans-serif;
+      --font-display: 'Satoshi', Inter, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --color-bg: #171614;
+      --color-surface: #1c1b19;
+      --color-surface-2: #201f1d;
+      --color-surface-offset: #22211f;
+      --color-divider: #262523;
+      --color-border: #393836;
+      --color-text: #cdccca;
+      --color-text-muted: #95948f;
+      --color-text-faint: #6d6c68;
+      --color-text-inverse: #171614;
+      --color-primary: #4f98a3;
+      --color-primary-hover: #227f8b;
+      --color-primary-highlight: #313b3b;
+      --color-success: #78b650;
+      --color-warning: #d08749;
+      --color-notification: #d16373;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.25);
+      --shadow-md: 0 10px 28px rgba(0,0,0,0.35);
+    }
+
+    * , *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+    body {
+      min-height: 100dvh;
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      line-height: 1.5;
+      background: var(--color-bg);
+      color: var(--color-text);
+    }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { border: none; background: none; cursor: pointer; }
+    input, select, textarea { width: 100%; border: 1px solid color-mix(in oklab, var(--color-text) 12%, transparent); background: var(--color-surface-2); border-radius: var(--radius-md); padding: 0.9rem 0.95rem; outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-primary) 18%, transparent); }
+    textarea { min-height: 96px; resize: vertical; }
+    a { color: inherit; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    .app-shell {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      background:
+        radial-gradient(circle at top left, color-mix(in oklab, var(--color-primary) 8%, transparent), transparent 28%),
+        var(--color-bg);
+    }
+
+    .sidebar {
+      padding: var(--space-6);
+      border-right: 1px solid color-mix(in oklab, var(--color-text) 9%, transparent);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+      background: color-mix(in oklab, var(--color-surface) 92%, transparent);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .logo-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--color-primary);
+      color: var(--color-text-inverse);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sidebar-card, .panel, .task-item, .assignment-row, .empty-state {
+      border: 1px solid color-mix(in oklab, var(--color-text) 10%, transparent);
+      background: var(--color-surface);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sidebar-card { padding: var(--space-5); display: grid; gap: var(--space-4); }
+    .sidebar-card h2, .panel h2 { font-size: var(--text-lg); font-weight: 700; line-height: 1.15; }
+    .sidebar-card p, .panel-subtitle, .meta, .helper { color: var(--color-text-muted); font-size: var(--text-sm); }
+
+    .menu { display: grid; gap: var(--space-2); }
+    .menu button {
+      text-align: left;
+      padding: 0.85rem 0.95rem;
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background var(--transition-interactive), color var(--transition-interactive), transform var(--transition-interactive);
+    }
+    .menu button.active, .menu button:hover { background: var(--color-primary-highlight); color: var(--color-primary); }
+
+    .main {
+      padding: var(--space-6);
+      display: grid;
+      gap: var(--space-6);
+      align-content: start;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .topbar h1 {
+      font-size: var(--text-xl);
+      line-height: 1.05;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      max-width: 12ch;
+    }
+
+    .topbar-actions { display: flex; gap: var(--space-3); align-items: center; }
+
+    .icon-button, .action-button, .secondary-button {
+      min-height: 44px;
+      padding: 0.8rem 1rem;
+      border-radius: var(--radius-md);
+      transition: transform var(--transition-interactive), background var(--transition-interactive), color var(--transition-interactive), border-color var(--transition-interactive);
+    }
+    .icon-button { width: 44px; display: grid; place-items: center; border: 1px solid color-mix(in oklab, var(--color-text) 10%, transparent); background: var(--color-surface); }
+    .action-button { background: var(--color-primary); color: var(--color-text-inverse); font-size: var(--text-sm); font-weight: 700; }
+    .action-button:hover { background: var(--color-primary-hover); }
+    .secondary-button { border: 1px solid color-mix(in oklab, var(--color-text) 10%, transparent); background: var(--color-surface); font-size: var(--text-sm); }
+    .icon-button:hover, .action-button:hover, .secondary-button:hover { transform: translateY(-1px); }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .summary-card {
+      padding: var(--space-5);
+      border-radius: var(--radius-xl);
+      background: var(--color-surface);
+      border: 1px solid color-mix(in oklab, var(--color-text) 10%, transparent);
+      box-shadow: var(--shadow-sm);
+      display: grid;
+      gap: var(--space-2);
+    }
+    .summary-card .label { font-size: var(--text-xs); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .summary-card .value { font-size: clamp(1.75rem, 1.3rem + 1vw, 2.4rem); font-weight: 700; letter-spacing: -0.04em; }
+    .summary-card .delta { font-size: var(--text-sm); color: var(--color-text-muted); }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: var(--space-6);
+      align-items: start;
+    }
+
+    .panel { padding: var(--space-5); display: grid; gap: var(--space-5); }
+    .panel-header { display: flex; justify-content: space-between; gap: var(--space-3); align-items: start; flex-wrap: wrap; }
+
+    .task-list, .assignment-list { display: grid; gap: var(--space-3); }
+
+    .task-item {
+      padding: var(--space-4);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--space-4);
+      align-items: start;
+    }
+
+    .task-check {
+      width: 22px;
+      height: 22px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid color-mix(in oklab, var(--color-text) 18%, transparent);
+      margin-top: 0.15rem;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .task-item.done .task-check { background: var(--color-success); border-color: var(--color-success); color: white; }
+    .task-title { font-size: var(--text-base); font-weight: 700; }
+    .task-item.done .task-title { text-decoration: line-through; color: var(--color-text-muted); }
+
+    .tag-row, .assignment-meta { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-2); }
+    .badge {
+      padding: 0.35rem 0.7rem;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      background: var(--color-surface-offset);
+      color: var(--color-text-muted);
+      border: 1px solid color-mix(in oklab, var(--color-text) 8%, transparent);
+    }
+    .badge.priority-high { background: color-mix(in oklab, var(--color-notification) 12%, var(--color-surface)); color: var(--color-notification); }
+    .badge.priority-medium { background: color-mix(in oklab, var(--color-warning) 12%, var(--color-surface)); color: var(--color-warning); }
+    .badge.priority-low { background: color-mix(in oklab, var(--color-success) 12%, var(--color-surface)); color: var(--color-success); }
+
+    .task-actions { display: flex; gap: var(--space-2); }
+    .task-actions button { width: 38px; height: 38px; border-radius: 10px; border: 1px solid color-mix(in oklab, var(--color-text) 10%, transparent); background: var(--color-surface-2); }
+
+    .assignment-row {
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-2);
+    }
+    .assignment-row-top { display: flex; justify-content: space-between; gap: var(--space-3); align-items: start; }
+    .assignment-title { font-weight: 700; }
+    .status-pill {
+      padding: 0.38rem 0.7rem;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+    }
+    .status-not-started { background: var(--color-surface-offset); color: var(--color-text-muted); }
+    .status-progress { background: color-mix(in oklab, var(--color-warning) 14%, var(--color-surface)); color: var(--color-warning); }
+    .status-done { background: color-mix(in oklab, var(--color-success) 14%, var(--color-surface)); color: var(--color-success); }
+
+    .form-grid { display: grid; gap: var(--space-4); }
+    .form-split { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--space-4); }
+    label { display: grid; gap: var(--space-2); font-size: var(--text-sm); font-weight: 500; }
+
+    .empty-state {
+      padding: var(--space-8);
+      text-align: center;
+      color: var(--color-text-muted);
+      display: none;
+      gap: var(--space-3);
+      place-items: center;
+    }
+    .empty-state.visible { display: grid; }
+
+    .mobile-bar { display: none; }
+
+    @media (max-width: 1080px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .workspace { grid-template-columns: 1fr; }
+      .mobile-bar {
+        display: flex;
+        gap: var(--space-2);
+        overflow-x: auto;
+        padding-bottom: var(--space-1);
+      }
+      .mobile-bar button {
+        white-space: nowrap;
+        padding: 0.8rem 0.95rem;
+        border-radius: var(--radius-full);
+        background: var(--color-surface);
+        border: 1px solid color-mix(in oklab, var(--color-text) 10%, transparent);
+      }
+      .mobile-bar button.active { color: var(--color-primary); background: var(--color-primary-highlight); }
+    }
+
+    @media (max-width: 640px) {
+      .main { padding: var(--space-4); }
+      .summary-grid { grid-template-columns: 1fr; }
+      .form-split, .task-item { grid-template-columns: 1fr; }
+      .task-actions { justify-content: flex-start; }
+      .topbar h1 { max-width: none; }
+      .topbar-actions { width: 100%; justify-content: space-between; }
+      .assignment-row-top { flex-direction: column; align-items: start; }
+    }
+  </style>
+</head>
+<body>
+  <a class="sr-only" href="#main-content">Skip to content</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Sidebar">
+      <div class="logo">
+        <div class="logo-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-label="Task tracker logo">
+            <path d="M6 7.5C6 6.67 6.67 6 7.5 6H16.5C17.33 6 18 6.67 18 7.5V16.5C18 17.33 17.33 18 16.5 18H7.5C6.67 18 6 17.33 6 16.5V7.5Z" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M8.5 12L11 14.5L15.5 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div>UniFlow</div>
+          <div class="helper">Tasks and assignments</div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div>
+          <h2>Semester focus</h2>
+          <p>One place for lectures, deadlines, and quick progress checks.</p>
+        </div>
+        <nav class="menu" aria-label="Primary">
+          <button class="active" data-filter="all">All items <span id="allCount">0</span></button>
+          <button data-filter="today">Due today <span id="todayCount">0</span></button>
+          <button data-filter="upcoming">Upcoming <span id="upcomingCount">0</span></button>
+          <button data-filter="completed">Completed <span id="completedCount">0</span></button>
+        </nav>
+      </div>
+
+    </aside>
+
+    <main class="main" id="main-content">
+      <div class="topbar">
+        <div>
+          <p class="helper">University dashboard</p>
+          <h1>Track classes, tasks, and assignments.</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-button" id="themeToggle" aria-label="Switch theme">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="mobile-bar" aria-label="Quick filters">
+        <button class="active" data-mobile-filter="all">All</button>
+        <button data-mobile-filter="today">Today</button>
+        <button data-mobile-filter="upcoming">Upcoming</button>
+        <button data-mobile-filter="completed">Completed</button>
+      </div>
+
+      <section class="summary-grid" aria-label="Overview">
+        <article class="summary-card">
+          <span class="label">Open tasks</span>
+          <strong class="value" id="openTasksMetric">0</strong>
+          <span class="delta">Items still in progress</span>
+        </article>
+        <article class="summary-card">
+          <span class="label">Assignments due</span>
+          <strong class="value" id="dueAssignmentsMetric">0</strong>
+          <span class="delta">Pending coursework</span>
+        </article>
+        <article class="summary-card">
+          <span class="label">Due today</span>
+          <strong class="value" id="todayMetric">0</strong>
+          <span class="delta">Immediate priorities</span>
+        </article>
+        <article class="summary-card">
+          <span class="label">Completed</span>
+          <strong class="value" id="completedMetric">0</strong>
+          <span class="delta">Finished and archived</span>
+        </article>
+      </section>
+
+      <section class="workspace">
+        <section class="panel" aria-labelledby="tasksHeading">
+          <div class="panel-header">
+            <div>
+              <h2 id="tasksHeading">Task list</h2>
+              <p class="panel-subtitle">Capture lecture prep, revision, and admin work.</p>
+            </div>
+          </div>
+
+          <form id="taskForm" class="form-grid">
+            <div class="form-split">
+              <label>
+                Task title
+                <input type="text" id="taskTitle" placeholder="Review DBMS notes" required />
+              </label>
+              <label>
+                Subject
+                <input type="text" id="taskSubject" placeholder="Computer Networks" required />
+              </label>
+            </div>
+            <div class="form-split">
+              <label>
+                Due date
+                <input type="date" id="taskDueDate" required />
+              </label>
+              <label>
+                Priority
+                <select id="taskPriority">
+                  <option value="high">High</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              Notes
+              <textarea id="taskNotes" placeholder="Optional reminder or resource link"></textarea>
+            </label>
+            <button class="action-button" type="submit">Add task</button>
+          </form>
+
+          <div id="taskList" class="task-list"></div>
+          <div class="empty-state" id="taskEmptyState">
+            <strong>No tasks yet</strong>
+            <p>Add your first university task to start organizing the week.</p>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="assignmentsHeading">
+          <div class="panel-header">
+            <div>
+              <h2 id="assignmentsHeading">Assignment tracker</h2>
+              <p class="panel-subtitle">Monitor progress and deadlines across every course.</p>
+            </div>
+          </div>
+
+          <form id="assignmentForm" class="form-grid">
+            <label>
+              Assignment title
+              <input type="text" id="assignmentTitle" placeholder="Operating Systems lab report" required />
+            </label>
+            <div class="form-split">
+              <label>
+                Course
+                <input type="text" id="assignmentCourse" placeholder="Operating Systems" required />
+              </label>
+              <label>
+                Due date
+                <input type="date" id="assignmentDueDate" required />
+              </label>
+            </div>
+            <label>
+              Status
+              <select id="assignmentStatus">
+                <option value="not-started">Not started</option>
+                <option value="progress">In progress</option>
+                <option value="done">Done</option>
+              </select>
+            </label>
+            <button class="action-button" type="submit">Add assignment</button>
+          </form>
+
+          <div id="assignmentList" class="assignment-list"></div>
+          <div class="empty-state" id="assignmentEmptyState">
+            <strong>No assignments tracked</strong>
+            <p>Create an assignment card to watch progress at a glance.</p>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+      taskFilter: 'all',
+      tasks: [],
+      assignments: []
+    };
+
+    const els = {
+      root: document.documentElement,
+      themeToggle: document.getElementById('themeToggle'),
+      taskForm: document.getElementById('taskForm'),
+      assignmentForm: document.getElementById('assignmentForm'),
+      taskList: document.getElementById('taskList'),
+      assignmentList: document.getElementById('assignmentList'),
+      taskEmptyState: document.getElementById('taskEmptyState'),
+      assignmentEmptyState: document.getElementById('assignmentEmptyState'),
+      openTasksMetric: document.getElementById('openTasksMetric'),
+      dueAssignmentsMetric: document.getElementById('dueAssignmentsMetric'),
+      todayMetric: document.getElementById('todayMetric'),
+      completedMetric: document.getElementById('completedMetric'),
+      allCount: document.getElementById('allCount'),
+      todayCount: document.getElementById('todayCount'),
+      upcomingCount: document.getElementById('upcomingCount'),
+      completedCount: document.getElementById('completedCount'),
+    };
+
+    const uid = () => Math.random().toString(36).slice(2, 9);
+    const todayString = () => new Date().toISOString().split('T')[0];
+    const addDays = (days) => {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      return d.toISOString().split('T')[0];
+    };
+    const formatDate = (value) => {
+      if (!value) return 'No date';
+      return new Date(value + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+    };
+    const isToday = (date) => date === todayString();
+    const isUpcoming = (date) => date && date > todayString();
+
+    function setTheme(theme) {
+      state.theme = theme;
+      els.root.setAttribute('data-theme', theme);
+      els.themeToggle.innerHTML = theme === 'dark'
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+    }
+
+    function renderFilters() {
+      document.querySelectorAll('[data-filter]').forEach(btn => btn.classList.toggle('active', btn.dataset.filter === state.taskFilter));
+      document.querySelectorAll('[data-mobile-filter]').forEach(btn => btn.classList.toggle('active', btn.dataset.mobileFilter === state.taskFilter));
+    }
+
+    function filteredTasks() {
+      if (state.taskFilter === 'today') return state.tasks.filter(t => !t.done && isToday(t.dueDate));
+      if (state.taskFilter === 'upcoming') return state.tasks.filter(t => !t.done && isUpcoming(t.dueDate));
+      if (state.taskFilter === 'completed') return state.tasks.filter(t => t.done);
+      return state.tasks;
+    }
+
+    function renderTasks() {
+      const tasks = filteredTasks();
+      els.taskList.innerHTML = tasks.map(task => `
+        <article class="task-item ${task.done ? 'done' : ''}">
+          <button class="task-check" aria-label="Mark ${task.title} complete" data-action="toggle-task" data-id="${task.id}">${task.done ? '✓' : ''}</button>
+          <div>
+            <div class="task-title">${task.title}</div>
+            <p class="meta">${task.subject} · Due ${formatDate(task.dueDate)}</p>
+            ${task.notes ? `<p class="meta" style="margin-top:0.4rem;">${task.notes}</p>` : ''}
+            <div class="tag-row">
+              <span class="badge priority-${task.priority}">${task.priority} priority</span>
+              <span class="badge">${task.subject}</span>
+            </div>
+          </div>
+          <div class="task-actions">
+            <button aria-label="Delete ${task.title}" data-action="delete-task" data-id="${task.id}">✕</button>
+          </div>
+        </article>
+      `).join('');
+      els.taskEmptyState.classList.toggle('visible', tasks.length === 0);
+    }
+
+    function renderAssignments() {
+      els.assignmentList.innerHTML = state.assignments.map(item => `
+        <article class="assignment-row">
+          <div class="assignment-row-top">
+            <div>
+              <div class="assignment-title">${item.title}</div>
+              <p class="meta">${item.course} · Due ${formatDate(item.dueDate)}</p>
+            </div>
+            <span class="status-pill status-${item.status}">${item.status.replace('-', ' ')}</span>
+          </div>
+          <div class="assignment-meta">
+            <span class="badge">${item.course}</span>
+          </div>
+          <div class="task-actions">
+            <button aria-label="Cycle status for ${item.title}" data-action="cycle-assignment" data-id="${item.id}">↻</button>
+            <button aria-label="Delete ${item.title}" data-action="delete-assignment" data-id="${item.id}">✕</button>
+          </div>
+        </article>
+      `).join('');
+      els.assignmentEmptyState.classList.toggle('visible', state.assignments.length === 0);
+    }
+
+    function renderMetrics() {
+      const openTasks = state.tasks.filter(t => !t.done).length;
+      const completedTasks = state.tasks.filter(t => t.done).length;
+      const dueToday = state.tasks.filter(t => !t.done && isToday(t.dueDate)).length + state.assignments.filter(a => a.status !== 'done' && isToday(a.dueDate)).length;
+      const pendingAssignments = state.assignments.filter(a => a.status !== 'done').length;
+      const upcoming = state.tasks.filter(t => !t.done && isUpcoming(t.dueDate)).length;
+
+      els.openTasksMetric.textContent = openTasks;
+      els.dueAssignmentsMetric.textContent = pendingAssignments;
+      els.todayMetric.textContent = dueToday;
+      els.completedMetric.textContent = completedTasks;
+      els.allCount.textContent = state.tasks.length;
+      els.todayCount.textContent = state.tasks.filter(t => !t.done && isToday(t.dueDate)).length;
+      els.upcomingCount.textContent = upcoming;
+      els.completedCount.textContent = completedTasks;
+    }
+
+    function render() {
+      renderFilters();
+      renderTasks();
+      renderAssignments();
+      renderMetrics();
+    }
+
+
+
+    els.themeToggle.addEventListener('click', () => setTheme(state.theme === 'dark' ? 'light' : 'dark'));
+
+    document.addEventListener('click', (event) => {
+      const filterBtn = event.target.closest('[data-filter]');
+      const mobileFilterBtn = event.target.closest('[data-mobile-filter]');
+      const actionBtn = event.target.closest('[data-action]');
+
+      if (filterBtn) {
+        state.taskFilter = filterBtn.dataset.filter;
+        render();
+      }
+      if (mobileFilterBtn) {
+        state.taskFilter = mobileFilterBtn.dataset.mobileFilter;
+        render();
+      }
+      if (!actionBtn) return;
+
+      const { action, id } = actionBtn.dataset;
+      if (action === 'toggle-task') {
+        state.tasks = state.tasks.map(task => task.id === id ? { ...task, done: !task.done } : task);
+      }
+      if (action === 'delete-task') {
+        state.tasks = state.tasks.filter(task => task.id !== id);
+      }
+      if (action === 'delete-assignment') {
+        state.assignments = state.assignments.filter(item => item.id !== id);
+      }
+      if (action === 'cycle-assignment') {
+        const order = ['not-started', 'progress', 'done'];
+        state.assignments = state.assignments.map(item => {
+          if (item.id !== id) return item;
+          const next = order[(order.indexOf(item.status) + 1) % order.length];
+          return { ...item, status: next };
+        });
+      }
+      render();
+    });
+
+    els.taskForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const formData = new FormData(els.taskForm);
+      state.tasks.unshift({
+        id: uid(),
+        title: formData.get('taskTitle') || document.getElementById('taskTitle').value,
+        subject: document.getElementById('taskSubject').value,
+        dueDate: document.getElementById('taskDueDate').value,
+        priority: document.getElementById('taskPriority').value,
+        notes: document.getElementById('taskNotes').value.trim(),
+        done: false
+      });
+      els.taskForm.reset();
+      document.getElementById('taskPriority').value = 'medium';
+      render();
+    });
+
+    els.assignmentForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      state.assignments.unshift({
+        id: uid(),
+        title: document.getElementById('assignmentTitle').value,
+        course: document.getElementById('assignmentCourse').value,
+        dueDate: document.getElementById('assignmentDueDate').value,
+        status: document.getElementById('assignmentStatus').value,
+      });
+      els.assignmentForm.reset();
+      render();
+    });
+
+    setTheme(state.theme);
+    render();
+  </script>
+</body>
+</html>
